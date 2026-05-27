@@ -20,6 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: "Prepare Codex home for bind mount"
+        run: mkdir -p "${HOME}/.codex"
+
       - name: "Test existing Codex home migration"
         run: bash test/codex/test-existing-home.sh
 
@@ -37,6 +40,9 @@ jobs:
           - codex
     steps:
       - uses: actions/checkout@v4
+
+      - name: "Prepare Codex home for bind mount"
+        run: mkdir -p "${HOME}/.codex"
 
       - name: "Install latest devcontainer CLI"
         run: npm install -g @devcontainers/cli
