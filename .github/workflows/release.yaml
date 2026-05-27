@@ -21,26 +21,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Read feature version"
-        id: feature
-        run: |
-          set -euo pipefail
-          version=$(jq -r '.version' src/codex/devcontainer-feature.json)
-          tag="v$version"
-
-          if [ -z "$version" ] || [ "$version" = "null" ]; then
-            echo "Feature version is missing from src/codex/devcontainer-feature.json" >&2
-            exit 1
-          fi
-
-          if git rev-parse "$tag" >/dev/null 2>&1; then
-            echo "Release tag $tag already exists. Bump the feature version before releasing." >&2
-            exit 1
-          fi
-
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-
       - name: "Publish Features"
         uses: devcontainers/action@v1
         with:
@@ -50,16 +30,6 @@ jobs:
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: "Create release tag"
-        env:
-          TAG: ${{ steps.feature.outputs.tag }}
-        run: |
-          set -euo pipefail
-          git config --global user.email github-actions[bot]@users.noreply.github.com
-          git config --global user.name github-actions[bot]
-          git tag -a "$TAG" -m "Release $TAG"
-          git push origin "$TAG"
 
       - name: Create PR for Documentation
         id: push_image_info
