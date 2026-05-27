@@ -1,0 +1,35 @@
+{
+  "id": "codex",
+  "version": "0.1.0",
+  "name": "OpenAI Codex",
+  "description": "Installs the OpenAI Codex VS Code extension and persists Codex sessions in a devcontainer-specific Docker volume.",
+  "documentationURL": "https://github.com/tamago1106/devcontainer-feature-codex/tree/main/src/codex",
+  "licenseURL": "https://github.com/tamago1106/devcontainer-feature-codex/blob/main/LICENSE",
+  "options": {
+    "sessionSource": {
+      "type": "string",
+      "enum": [
+        "container"
+      ],
+      "default": "container",
+      "description": "Use a Codex session stored in a Docker volume scoped to this dev container. The session persists across container rebuilds/recreates, but is not shared with the host or other dev containers."
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ],
+  "mounts": [
+    {
+      "source": "devcontainer-codex-${devcontainerId}",
+      "target": "/mnt/codex-session",
+      "type": "volume"
+    }
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "OpenAI.chatgpt"
+      ]
+    }
+  }
+}
