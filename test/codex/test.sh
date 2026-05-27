@@ -6,13 +6,13 @@ if [ ! -L "${HOME}/.codex" ]; then
     exit 1
 fi
 
-if [ "$(readlink "${HOME}/.codex")" != "/mnt/codex-session" ]; then
-    echo "Expected ${HOME}/.codex to point to /mnt/codex-session"
+if [ "$(readlink "${HOME}/.codex")" != "/mnt/codex-host" ]; then
+    echo "Expected ${HOME}/.codex to point to /mnt/codex-host"
     exit 1
 fi
 
-if [ ! -d "/mnt/codex-session" ]; then
-    echo "Expected /mnt/codex-session to exist"
+if [ ! -d "/mnt/codex-host" ]; then
+    echo "Expected /mnt/codex-host to exist"
     exit 1
 fi
 
@@ -21,4 +21,4 @@ if [ ! -d "${HOME}/.codex" ]; then
     exit 1
 fi
 
-echo "Codex session exists at ${HOME}/.codex -> /mnt/codex-session"
+echo "Codex session exists at ${HOME}/.codex -> /mnt/codex-host"

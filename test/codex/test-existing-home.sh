@@ -6,64 +6,64 @@ trap 'rm -rf "${TEST_ROOT}"' EXIT
 
 USERNAME="$(id -un)"
 
-CONTAINER_MODE_HOME="${TEST_ROOT}/container-mode-home"
-CONTAINER_MODE_SESSION_DIR="${TEST_ROOT}/container-mode-codex-session"
-mkdir -p "${CONTAINER_MODE_HOME}/.codex" "${CONTAINER_MODE_SESSION_DIR}"
-printf 'container-session\n' > "${CONTAINER_MODE_HOME}/.codex/session.json"
+HOST_BIND_HOME="${TEST_ROOT}/host-bind-home"
+HOST_CODEX_DIR="${TEST_ROOT}/host-codex"
+mkdir -p "${HOST_BIND_HOME}" "${HOST_CODEX_DIR}"
+printf 'host-session\n' > "${HOST_CODEX_DIR}/session.json"
 
-USER_HOME="${CONTAINER_MODE_HOME}" CODEX_SESSION_DIR="${CONTAINER_MODE_SESSION_DIR}" USERNAME="${USERNAME}" SESSIONSOURCE="container" ./src/codex/install.sh
+USER_HOME="${HOST_BIND_HOME}" HOST_CODEX_DIR="${HOST_CODEX_DIR}" USERNAME="${USERNAME}" ./src/codex/install.sh
 
-if [ ! -L "${CONTAINER_MODE_HOME}/.codex" ]; then
-    echo "Expected container mode to replace existing container .codex with a symlink"
+if [ ! -L "${HOST_BIND_HOME}/.codex" ]; then
+    echo "Expected host bind mode to create a .codex symlink"
     exit 1
 fi
 
-if [ "$(readlink "${CONTAINER_MODE_HOME}/.codex")" != "${CONTAINER_MODE_SESSION_DIR}" ]; then
-    echo "Expected container mode .codex to point to ${CONTAINER_MODE_SESSION_DIR}"
+if [ "$(readlink "${HOST_BIND_HOME}/.codex")" != "${HOST_CODEX_DIR}" ]; then
+    echo "Expected host bind mode .codex to point to ${HOST_CODEX_DIR}"
     exit 1
 fi
 
-if [ "$(cat "${CONTAINER_MODE_SESSION_DIR}/session.json")" != "container-session" ]; then
-    echo "Expected container mode to persist the container Codex session"
+if [ "$(cat "${HOST_BIND_HOME}/.codex/session.json")" != "host-session" ]; then
+    echo "Expected host bind mode to expose the host Codex session"
     exit 1
 fi
 
 BROKEN_SYMLINK_HOME="${TEST_ROOT}/broken-symlink-home"
-BROKEN_SYMLINK_SESSION_DIR="${TEST_ROOT}/broken-symlink-codex-session"
-mkdir -p "${BROKEN_SYMLINK_HOME}" "${BROKEN_SYMLINK_SESSION_DIR}"
-ln -s "${TEST_ROOT}/missing-codex-session" "${BROKEN_SYMLINK_HOME}/.codex"
+BROKEN_SYMLINK_HOST_CODEX_DIR="${TEST_ROOT}/broken-symlink-host-codex"
+mkdir -p "${BROKEN_SYMLINK_HOME}" "${BROKEN_SYMLINK_HOST_CODEX_DIR}"
+ln -s "${TEST_ROOT}/missing-host-codex" "${BROKEN_SYMLINK_HOME}/.codex"
 
-USER_HOME="${BROKEN_SYMLINK_HOME}" CODEX_SESSION_DIR="${BROKEN_SYMLINK_SESSION_DIR}" USERNAME="${USERNAME}" SESSIONSOURCE="container" ./src/codex/install.sh
+USER_HOME="${BROKEN_SYMLINK_HOME}" HOST_CODEX_DIR="${BROKEN_SYMLINK_HOST_CODEX_DIR}" USERNAME="${USERNAME}" ./src/codex/install.sh
 
 if [ ! -L "${BROKEN_SYMLINK_HOME}/.codex" ]; then
-    echo "Expected container mode to replace a broken .codex symlink"
+    echo "Expected host bind mode to replace a broken .codex symlink"
     exit 1
 fi
 
-if [ "$(readlink "${BROKEN_SYMLINK_HOME}/.codex")" != "${BROKEN_SYMLINK_SESSION_DIR}" ]; then
-    echo "Expected broken symlink replacement to point to ${BROKEN_SYMLINK_SESSION_DIR}"
+if [ "$(readlink "${BROKEN_SYMLINK_HOME}/.codex")" != "${BROKEN_SYMLINK_HOST_CODEX_DIR}" ]; then
+    echo "Expected broken symlink replacement to point to ${BROKEN_SYMLINK_HOST_CODEX_DIR}"
     exit 1
 fi
 
-EXISTING_VOLUME_HOME="${TEST_ROOT}/existing-volume-home"
-EXISTING_VOLUME_SESSION_DIR="${TEST_ROOT}/existing-volume-codex-session"
-mkdir -p "${EXISTING_VOLUME_HOME}/.codex" "${EXISTING_VOLUME_SESSION_DIR}"
-printf 'container-session\n' > "${EXISTING_VOLUME_HOME}/.codex/session.json"
-printf 'volume-session\n' > "${EXISTING_VOLUME_SESSION_DIR}/session.json"
+EXISTING_HOME="${TEST_ROOT}/existing-home"
+EXISTING_HOST_CODEX_DIR="${TEST_ROOT}/existing-host-codex"
+mkdir -p "${EXISTING_HOME}/.codex" "${EXISTING_HOST_CODEX_DIR}"
+printf 'container-session\n' > "${EXISTING_HOME}/.codex/session.json"
+printf 'host-session\n' > "${EXISTING_HOST_CODEX_DIR}/session.json"
 
-if USER_HOME="${EXISTING_VOLUME_HOME}" CODEX_SESSION_DIR="${EXISTING_VOLUME_SESSION_DIR}" USERNAME="${USERNAME}" SESSIONSOURCE="container" ./src/codex/install.sh >/dev/null 2>&1; then
-    echo "Expected container mode to refuse overwriting an existing Codex volume"
+if USER_HOME="${EXISTING_HOME}" HOST_CODEX_DIR="${EXISTING_HOST_CODEX_DIR}" USERNAME="${USERNAME}" ./src/codex/install.sh >/dev/null 2>&1; then
+    echo "Expected host bind mode to refuse overwriting an existing .codex directory"
     exit 1
 fi
 
-if [ ! -d "${EXISTING_VOLUME_HOME}/.codex" ]; then
-    echo "Expected failed migration to leave the existing container .codex in place"
+if [ ! -d "${EXISTING_HOME}/.codex" ]; then
+    echo "Expected failed install to leave the existing container .codex in place"
     exit 1
 fi
 
-if [ "$(cat "${EXISTING_VOLUME_SESSION_DIR}/session.json")" != "volume-session" ]; then
-    echo "Expected failed migration to preserve the existing Codex volume"
+if [ "$(cat "${EXISTING_HOST_CODEX_DIR}/session.json")" != "host-session" ]; then
+    echo "Expected failed install to preserve the host Codex session"
     exit 1
 fi
 
-echo "Codex container session behaved as expected"
+echo "Codex host bind session behaved as expected"

@@ -5,8 +5,8 @@ A Dev Container Feature for using OpenAI Codex inside VS Code dev containers.
 ## Features
 
 - Installs the OpenAI Codex VS Code extension: `OpenAI.chatgpt`
-- Mounts a devcontainer-specific Docker volume so sessions and auth state can persist across container rebuilds
-- Links the container user's `~/.codex` to the mounted Codex session directory
+- Bind-mounts the host user's `~/.codex` into the dev container
+- Links the container user's `~/.codex` to the mounted host Codex directory
 
 ## Usage
 
@@ -18,34 +18,17 @@ A Dev Container Feature for using OpenAI Codex inside VS Code dev containers.
 }
 ```
 
-By default, the feature stores the Codex session in a Docker volume scoped to this dev container. It links the remote user's `~/.codex` to `/mnt/codex-session`:
+The feature bind-mounts the host user's `~/.codex` into the dev container and links the remote user's `~/.codex` to `/mnt/codex-host`:
 
 ```jsonc
 {
-  "source": "devcontainer-codex-${devcontainerId}",
-  "target": "/mnt/codex-session",
-  "type": "volume"
+  "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.codex",
+  "target": "/mnt/codex-host",
+  "type": "bind"
 }
 ```
 
-## Options
-
-### `sessionSource`
-
-Controls where the Codex session is stored. Currently only `container` is supported.
-
-```jsonc
-{
-  "features": {
-    "ghcr.io/tamago1106/devcontainer-feature-codex/codex:0.1.0": {
-      "sessionSource": "container"
-    }
-  }
-}
-```
-
-- `container` uses a Docker volume named with `${devcontainerId}`. The session survives container rebuilds/recreates, but is not shared with the host or with other dev containers.
-- If a non-empty container `~/.codex` exists and the mounted session volume is empty, the feature migrates it into `/mnt/codex-session`. It refuses to overwrite a non-empty mounted session volume.
+There are no feature options. If the container user's `~/.codex` already exists as a regular file or directory, remove it before installing this feature.
 
 ## Local Testing
 
