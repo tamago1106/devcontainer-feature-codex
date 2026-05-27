@@ -1,7 +1,7 @@
 
 # OpenAI Codex (codex)
 
-Installs the OpenAI Codex VS Code extension and persists Codex sessions in a devcontainer-specific Docker volume.
+Installs the OpenAI Codex VS Code extension and uses the host Codex session inside the dev container.
 
 ## Example Usage
 
@@ -11,11 +11,7 @@ Installs the OpenAI Codex VS Code extension and persists Codex sessions in a dev
 }
 ```
 
-## Options
 
-| Options Id | Description | Type | Default Value |
-|-----|-----|-----|-----|
-| sessionSource | Use a Codex session stored in a Docker volume scoped to this dev container. The session persists across container rebuilds/recreates, but is not shared with the host or other dev containers. | string | container |
 
 ## Customizations
 
